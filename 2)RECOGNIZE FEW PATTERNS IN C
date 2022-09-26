@@ -1,0 +1,155 @@
+#include<stdio.h>
+#include<conio.h>
+#include<string.h>
+#include<ctype.h>
+int main()
+{
+	FILE *fsur,*fkey,*fopr;
+	char c,str[20],ky[20],op[20],temp[20];
+	int i,set=0;
+	fsur=fopen("source.txt","r");
+	fkey=fopen("keyword.txt","r");
+	fopr=fopen("operator.txt","r");
+	while(feof(fsur)==0)
+	{
+	 	c=fgetc(fsur);
+//Keywords and Identifiers
+	    	if(isalpha(c))
+	    	{
+			for(i=0;(isalpha(c))||(isdigit(c))||(c=='_');i++)
+			{
+				str[i]=c;
+				c=fgetc(fsur);
+			}
+			str[i]='\0';
+			rewind(fkey);
+			while(feof(fkey)==0)
+			{
+				fscanf(fkey,"%s",ky);
+				if(strcmp(ky,str)==0)
+				{
+					printf("\n%s is a keyword",str);
+					set=1;
+					break;
+				}
+			}
+			if(set==0)
+			printf("\n%s is an identifier",str);
+			set=0;
+	    	}
+//Numeric literals
+	    	if(isdigit(c))
+	 	   {
+			for(i=0;(isdigit(c))||(c=='.');i++)
+			{
+				str[i]=c;
+				c=fgetc(fsur);
+			}
+			str[i]='\0';
+			printf("\n%s is a numeric literal",str);
+	    	}
+//String literals
+	    	if(c=='\"')
+	    	{
+			c=fgetc(fsur);
+			for(i=0;c!='\"';i++)
+			{
+				str[i]=c;
+				c=fgetc(fsur);
+			}
+			str[i]='\0';
+			printf("\n\"%s\" is a string literal",str);
+	    	}
+//Character literal
+	    	if(c=='\'')
+	    	{
+			c=fgetc(fsur);
+			if(c=='\\')
+			{
+		    		c=fgetc(fsur);
+		    		printf("\n\\%c is a character literal",c);
+			}
+			else
+		    	printf("\n%c is a character literal",c);
+			if((c=fgetc(fsur))!='\'')
+		    	printf("\nInvalid character literal");
+	    	}
+//Preprocessor
+if(c=='#')
+	   	 {
+			printf("\n%c is a preprocessor symbol",c);
+	    	}
+//Brackets
+	    	if(c=='('||c=='{')
+		printf("\n%c is an opening braces",c);
+	    	if(c==')'||c=='}')
+		printf("\n%c is a closing braces",c);
+//Punctuation symbols
+	    	if(c==',')
+		printf("\n%c is a puntuation",c);
+	    	if(c==';')
+		printf("\n%c is end of statement",c);
+//comment lines
+	    	if(c=='/')
+	    	{
+			printf("\ncomment lines\n");
+			c=fgetc(fsur);
+			if(c=='/')
+			{
+		    		while(c!='\n')
+		  		  {
+					c=fgetc(fsur);
+					printf("%c",c);
+		 		   }
+			}
+			else if(c=='*')
+			{
+		   		 for(;;)
+		  	  	{
+					c=fgetc(fsur);
+					if(c=='*')
+					{
+			  			 c=fgetc(fsur);
+			    			if(c=='/') break;
+					}
+					printf("%c",c);
+		 		 }
+		  	  	c=getc(fsur);
+			}
+	    	}
+//operators
+rewind(fopr);
+temp[0]=c;
+temp[1]='\0';
+while(feof(fopr)==0)
+{
+			fscanf(fopr,"%s",op);
+			if(strcmp(op,temp)==0)
+			{
+				 c=fgetc(fsur);
+		    		temp[1]=c;
+		    		temp[2]='\0';
+		    		rewind(fopr);
+		  		while(feof(fopr)==0)
+		    		{
+					fscanf(fopr,"%s",op);
+					if(strcmp(op,temp)==0)
+					{
+			    			printf("\n%s is an operator",temp);
+			    			set=1;
+			    			break;
+					}
+}
+				if(set==0)
+		    		{
+					printf("\n%c is an operator",temp[0]);
+					ungetc(c,fsur);
+					break;
+		 	   	}
+}
+}
+set=0;
+}
+	getch();
+	return 0;
+}
